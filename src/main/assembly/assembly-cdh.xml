@@ -1,0 +1,21 @@
+<assembly>
+<id>make-cdh</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>plugins/cdh*/**</include>
+                <include>plugins/__init__*</include>
+                <include>*</include>
+            </includes>
+            <excludes>
+                <exclude>plugins/cdh*/tests/</exclude>
+                <exclude>plugins/cdh*/pylint*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

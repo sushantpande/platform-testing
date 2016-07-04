@@ -1,0 +1,182 @@
+"""
+Copyright (c) 2016 Cisco and/or its affiliates.
+
+This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+The code, technical concepts, and all information contained herein, are the property of
+Cisco Technology, Inc. and/or its affiliated entities, under various laws including copyright,
+international treaties, patent, and/or contract. Any use of the material herein must be in
+accordance with the terms of the License.
+All rights not expressly granted by the License are reserved.
+
+Unless required by applicable law or agreed to separately in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+either express or implied.
+
+Purpose:    Browse zookeeper tree with kafka context in mind
+
+"""
+
+
+import json
+import socket
+import logging
+
+from kafka.client import KafkaClient
+from kazoo.client import KazooClient
+from kazoo.exceptions import NoNodeError
+from kazoo.handlers.threading import KazooTimeoutError
+
+from plugins.common.defcom import ZkPartitions, KkBrokers, KkBrokersHealth
+
+LOGGER = logging.getLogger("TestbotPlugin")
+
+class ZkError(Exception):
+    '''
+    Zookeeper errors
+    '''
+    def __init__(self, msg):
+        Exception.__init__(self, msg)
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+class ZkClient(object):
+    '''
+    Zookeeper client wrapper
+    '''
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.default_zk_timeout = 3.0
+        self.client = KazooClient(hosts=':'.join([host, str(port)]),
+                                  timeout=2.01,
+                                  max_retries=0,
+                                  read_only=True)
+
+    @classmethod
+    def _zjoin(cls, parts):
+        return '/'.join(parts)
+
+    def generic_zk_list(self, path):
+        '''
+        Internal method for browsing zookeeper node at path location
+        and get child info
+        '''
+        details = {}
+        self.client.start(timeout=self.default_zk_timeout)
+        if path:
+            children = self.client.get_children(path)
+            for child in children:
+                try:
+                    child_path = "%s/%s" % (path, child)
+                    detail = self.client.get(child_path)[0]
+                    details[child] = detail
+                except NoNodeError:
+                    LOGGER.error(
+                        "zookeeper  (%s:%d) - failed to get child from %s",
+                         self.host,
+                         self.port,
+                         child_path)
+        self.client.stop()
+
+        return details
+
+    def ping(self):
+        '''
+        Returns True or False if / is reachable
+        '''
+        vroot = '/'
+        try:
+            rootelts = self.generic_zk_list(vroot)
+            return rootelts is not None
+        except NoNodeError:
+            LOGGER.error(
+                "zookeeper root node unreachable - no root node (%s:%d)",
+                 self.host,
+                 self.port)
+        except KazooTimeoutError:
+            LOGGER.error(
+                "zookeeper root node timeout (%s:%d)", self.host, self.port)
+        return False
+
+    def topics(self):
+        '''
+        Returns a list of ZkPartitions tuples, where each tuple represents
+        a partition.
+        '''
+        seq = []
+        vroot = '/brokers/topics'
+        try:
+            for topic in self.generic_zk_list(vroot).iterkeys():
+                partitions = []
+                try:
+                    for part in self.generic_zk_list( \
+                        self._zjoin([vroot, topic, 'partitions'])).iterkeys():
+                        for part_value in self.generic_zk_list( \
+                self._zjoin([vroot, topic, 'partitions', part])).itervalues():
+
+                            val = json.loads(part_value)
+                            partitions.append(\
+                {part: {'leader': val["leader"], 'isr': val["isr"]}})
+
+                    seq.append(
+                    ZkPartitions(topic, {'valid': True, 'list': partitions}))
+                except NoNodeError:
+                    LOGGER.error("zookeeper (%s:%d) - failed to get %s details",
+                                 self.host,
+                                 self.port,
+                                 topic)
+                    seq.append(
+                        ZkPartitions(topic, {'valid': False, 'list': []}))
+        except NoNodeError:
+            LOGGER.error("zookeeper (%s:%d) - %s tree do not exist",
+                         self.host,
+                         self.port,
+                         vroot)
+            raise ZkError("zookeeper (%s:%d) - %s tree do not exist" %
+                          (self.host,
+                           self.port,
+                           vroot))
+        return tuple(seq)
+
+    def brokers(self):
+        '''
+        Returns a list of KkBrokers tuples, where each tuple represents
+        a broker with host/port and alive status.
+        '''
+        bok = 0
+        bko = 0
+        seq = []
+        vroot = '/brokers/ids'
+        bconnect = ""
+        berror = ""
+        try:
+            for kkey, kkinfo in self.generic_zk_list(vroot).iteritems():
+                # Let's check the broker is alive
+                val = json.loads(kkinfo)
+                if bconnect != "":
+                    bconnect += ","
+                bconnect += "%s:%d" % (val["host"], val["port"])
+                try:
+                    k = KafkaClient("%s:%d" % (val["host"], val["port"]))
+                    if k is not None:
+                        seq.append(
+            KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], True))
+                        bok += 1
+                except socket.gaierror:
+                    LOGGER.error("broker (%s:%d) - not reachable",
+                                 val["host"], val["port"])
+                    if berror != "":
+                        berror += ","
+                    berror += "%s:%d" % (val["host"], val["port"])
+                    seq.append(
+            KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], False))
+                    bko += 1
+        except NoNodeError:
+            LOGGER.error("zookeeper (%s:%d) - %s tree do not exist",
+                         self.host, self.port, vroot)
+            raise ZkError("zookeeper (%s:%d) - %s tree do not exist" %
+                          (self.host, self.port, vroot))
+        return KkBrokersHealth(bconnect, berror, bok, bko, seq)

@@ -1,0 +1,20 @@
+<assembly>
+<id>make-general</id>
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>plugins/kafka*/**</include>
+                <include>plugins/zookeeper*/**</include>
+                <include>plugins/dm*/**</include>
+                <include>plugins/common/**</include>                
+                <include>plugins/__init__*</include>
+                <include>*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
