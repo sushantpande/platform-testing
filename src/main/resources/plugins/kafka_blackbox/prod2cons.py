@@ -142,8 +142,7 @@ class Prod2Cons(object):
                     self.add_rcv(int(rawsplit[1]))
                 else:
                     readnotvalid += 1
-                    LOGGER.error(
-                    "consumer  reads unexpected message [%s] - runtag is [%s]",
+                    LOGGER.error("consumer  reads unexpected message [%s] - runtag is [%s]",
                                  msg['rawdata'],
                                  self.runtag)
 

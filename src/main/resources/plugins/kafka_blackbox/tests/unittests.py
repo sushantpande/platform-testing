@@ -17,7 +17,6 @@ Purpose:    Unit testing
 
 """
 
-import time
 import unittest
 
 from mock import patch
@@ -38,15 +37,15 @@ class TestKafkaBlackbox(unittest.TestCase):
         self.assertEqual(6, len(values))
         i = 0
         test_ok = []
-        test_ok.append(Event(0,'kafka','kafka.nodes',[],"127.0.0.1:9092"))
-        test_ok.append(Event(0,'kafka','kafka.nodes.ok',[],1))
-        test_ok.append(Event(0,'kafka','kafka.nodes.ko',[],0))
-        test_ok.append(Event(0,'kafka','kafka.partitions.ok',[],1))
-        test_ok.append(Event(0,'kafka','kafka.partitions.ko',[],0))
-        test_ok.append(Event(0,'kafka','kafka.health',[],"OK"))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes', [], "127.0.0.1:9092"))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes.ok', [], 1))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes.ko', [], 0))
+        test_ok.append(Event(0, 'kafka', 'kafka.partitions.ok', [], 1))
+        test_ok.append(Event(0, 'kafka', 'kafka.partitions.ko', [], 0))
+        test_ok.append(Event(0, 'kafka', 'kafka.health', [], "OK"))
         for data in test_ok:
             self.assertEqual(values[i].source, data.source)
-            self.assertEqual(values[i].metric, data.metric )
+            self.assertEqual(values[i].metric, data.metric)
             self.assertEqual(values[i].causes, data.causes)
             self.assertEqual(values[i].value, data.value)
             i = i + 1
@@ -58,15 +57,15 @@ class TestKafkaBlackbox(unittest.TestCase):
         self.assertEqual(6, len(values))
         i = 0
         test_ok = []
-        test_ok.append(Event(0,'kafka','kafka.nodes',[],"127.0.0.1:9092"))
-        test_ok.append(Event(0,'kafka','kafka.nodes.ok',[],1))
-        test_ok.append(Event(0,'kafka','kafka.nodes.ko',[],0))
-        test_ok.append(Event(0,'kafka','kafka.partitions.ok',[],0))
-        test_ok.append(Event(0,'kafka','kafka.partitions.ko',[],1))
-        test_ok.append(Event(0,'kafka','kafka.health',['topic / partition inconsistency in zookeeper'],"WARN"))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes', [], "127.0.0.1:9092"))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes.ok', [], 1))
+        test_ok.append(Event(0, 'kafka', 'kafka.nodes.ko', [], 0))
+        test_ok.append(Event(0, 'kafka', 'kafka.partitions.ok', [], 0))
+        test_ok.append(Event(0, 'kafka', 'kafka.partitions.ko', [], 1))
+        test_ok.append(Event(0, 'kafka', 'kafka.health', ['topic / partition inconsistency in zookeeper'], "WARN"))
         for data in test_ok:
             self.assertEqual(values[i].source, data.source)
-            self.assertEqual(values[i].metric, data.metric )
+            self.assertEqual(values[i].metric, data.metric)
             self.assertEqual(values[i].causes, data.causes)
             self.assertEqual(values[i].value, data.value)
             i = i + 1

@@ -39,7 +39,7 @@ TIMESTAMP_MILLIS = lambda: int(time.time() * 1000)
 HERE = os.path.abspath(os.path.dirname(__file__))
 LOGGER = logging.getLogger("TestbotPlugin")
 
-TestbotPlugin = lambda: KafkaBlackbox()
+TestbotPlugin = lambda: KafkaBlackbox() # pylint: disable=invalid-name
 
 
 def getzknodes(zconnect):
@@ -133,9 +133,7 @@ class KafkaBlackbox(PndaPlugin):
             description='Show state of Zk-Kafka cluster',
             add_help=False)
         parser.add_argument('--zconnect', default='localhost:2181',
-            help=(
-                'comma separated host:port pairs, ' \
-                'each corresponding to a zk host (default: localhost:2181)'))
+                            help=('comma separated host:port pairs, each corresponding to a zk host (default: localhost:2181)'))
         parser.add_argument('--prod2cons', action='store_const', const=True,
                             help='Run a producer/consumer test')
 
@@ -215,8 +213,7 @@ class KafkaBlackbox(PndaPlugin):
                                   zk_data.list_brokers_ko)
 
         if zk_data and zk_data.num_part_ko > 0:
-            LOGGER.error(
-            "analyse_results : at least one topic / partition inconsistency")
+            LOGGER.error("analyse_results : at least one topic / partition inconsistency")
             if analyse_status != MonitorStatus["red"]:
                 analyse_status = MonitorStatus["amber"]
             analyse_causes.append(
@@ -225,11 +222,9 @@ class KafkaBlackbox(PndaPlugin):
         if self.prod2cons:
             if test_result.sent == test_result.received \
              and test_result.notvalid == 0:
-                LOGGER.debug(
-                "analyse_results - test for messages sent / received is valid")
+                LOGGER.debug("analyse_results - test for messages sent / received is valid")
             else:
-                LOGGER.error(
-                "analyse_results - test for messages sent / received failed")
+                LOGGER.error("analyse_results - test for messages sent / received failed")
                 analyse_status = MonitorStatus["red"]
                 analyse_causes.append("producer / consumer failed " + \
                     "(sent %d, rcv_ok %d, rcv_ko %d)" %
@@ -262,11 +257,11 @@ class KafkaBlackbox(PndaPlugin):
                         if broker is not None:
                             process_results.append(
                                 PartitionState(
-                                  broker.host,
-                                  broker.port,
-                                  obj.id,
-                                  part,
-                                  obj.partitions["valid"]))
+                                    broker.host,
+                                    broker.port,
+                                    obj.id,
+                                    part,
+                                    obj.partitions["valid"]))
                     topic_ok += 1
             else:
                 topic_ko += 1
@@ -354,15 +349,12 @@ class KafkaBlackbox(PndaPlugin):
                     break
                 if prev_zk_data is not None:
                     if (
-                        prev_zk_data.num_partitions != zk_data.num_partitions or
-                        prev_zk_data.num_part_ok != zk_data.num_part_ok or
-                        prev_zk_data.num_part_ko != zk_data.num_part_ko):
-                        LOGGER.error(
-                        "Inconsistency found in zk (%s,%d) tree comparison", \
-                                     zkn.host, zkn.port)
+                            prev_zk_data.num_partitions != zk_data.num_partitions or
+                            prev_zk_data.num_part_ok != zk_data.num_part_ok or
+                            prev_zk_data.num_part_ko != zk_data.num_part_ko):
+                        LOGGER.error("Inconsistency found in zk (%s,%d) tree comparison", zkn.host, zkn.port)
                     else:
-                        LOGGER.debug(
-                    "No inconsistency found in zk (%s,%d) tree comparison", \
+                        LOGGER.debug("No inconsistency found in zk (%s,%d) tree comparison", \
                                      zkn.host, zkn.port)
                 prev_zk_data = zk_data
         if not zk_data:

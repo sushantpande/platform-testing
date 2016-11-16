@@ -16,10 +16,7 @@ either express or implied.
 Purpose:    Unit testing
 
 """
-import time
 import unittest
-
-from collections import namedtuple
 
 from mock import patch
 
@@ -42,11 +39,11 @@ class TestKafkaWhitebox(unittest.TestCase):
         self.assertEqual(64, len(values))
         i = 0
 
-        for jmx_path_name in ["BytesInPerSec", "BytesOutPerSec", \
+        for jmx_path_name in ["BytesInPerSec", "BytesOutPerSec",
                               "MessagesInPerSec"]:
-            for jmx_data in ["RateUnit", "OneMinuteRate", \
-                    "EventType", "Count", "FifteenMinuteRate",
-                    "FiveMinuteRate", "MeanRate"]:
+            for jmx_data in ["RateUnit", "OneMinuteRate",
+                             "EventType", "Count", "FifteenMinuteRate",
+                             "FiveMinuteRate", "MeanRate"]:
 
                 self.assertEqual(values[i].source, 'kafka')
                 self.assertEqual(values[i].metric, 'kafka.brokers.1.topics.avro.internal.test.%s.%s' % (jmx_path_name, jmx_data))

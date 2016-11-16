@@ -76,9 +76,9 @@ class ZkClient(object):
                 except NoNodeError:
                     LOGGER.error(
                         "zookeeper  (%s:%d) - failed to get child from %s",
-                         self.host,
-                         self.port,
-                         child_path)
+                        self.host,
+                        self.port,
+                        child_path)
         self.client.stop()
 
         return details
@@ -94,8 +94,8 @@ class ZkClient(object):
         except NoNodeError:
             LOGGER.error(
                 "zookeeper root node unreachable - no root node (%s:%d)",
-                 self.host,
-                 self.port)
+                self.host,
+                self.port)
         except KazooTimeoutError:
             LOGGER.error(
                 "zookeeper root node timeout (%s:%d)", self.host, self.port)
@@ -121,8 +121,7 @@ class ZkClient(object):
                             partitions.append(\
                 {part: {'leader': val["leader"], 'isr': val["isr"]}})
 
-                    seq.append(
-                    ZkPartitions(topic, {'valid': True, 'list': partitions}))
+                    seq.append(ZkPartitions(topic, {'valid': True, 'list': partitions}))
                 except NoNodeError:
                     LOGGER.error("zookeeper (%s:%d) - failed to get %s details",
                                  self.host,
@@ -162,8 +161,7 @@ class ZkClient(object):
                 try:
                     k = KafkaClient("%s:%d" % (val["host"], val["port"]))
                     if k is not None:
-                        seq.append(
-            KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], True))
+                        seq.append(KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], True))
                         bok += 1
                 except socket.gaierror:
                     LOGGER.error("broker (%s:%d) - not reachable",
@@ -171,8 +169,7 @@ class ZkClient(object):
                     if berror != "":
                         berror += ","
                     berror += "%s:%d" % (val["host"], val["port"])
-                    seq.append(
-            KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], False))
+                    seq.append(KkBrokers(kkey, val["host"], val["port"], val["jmx_port"], False))
                     bko += 1
         except NoNodeError:
             LOGGER.error("zookeeper (%s:%d) - %s tree do not exist",
