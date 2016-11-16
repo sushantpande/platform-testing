@@ -32,11 +32,14 @@ if [[ $(bc <<< "${SCORE} > 8") == 0 ]]; then
     code_quality_error "${PYLINTOUT}"
 fi
 
-cd ${BASE}
+cd ${BASE}/src/main/resources
 
 # Unit tests
 PYTHONPATH=${PWD}
+find . -type f -name 'unittests.py' | xargs nosetests
+[[ $? -ne 0 ]] && exit -1
 
+cd ${BASE}
 # Build
 mkdir -p pnda-build
 mvn versions:set -DnewVersion=${VERSION}

@@ -26,12 +26,11 @@ class TestKafkaBlackbox(unittest.TestCase):
 
     @patch('plugins.common.zkclient.ZkClient')
     def test_normal_use(self, zk_mock):
-        from plugins.zookeeper.TestbotPlugin import ZookeeperBot
+        from plugins.zookeeper_blackbox.TestbotPlugin import ZookeeperBot
         zk_mock.return_value.ping.return_value = True
         plugin = ZookeeperBot()
         values = plugin.runner(("--zconnect 127.0.0.1:2181"), True)
-
-        self.assertEqual(4, len(values))
+        self.assertEqual(5, len(values))
         i = 0
         test_ok = []
         test_ok.append(Event(0, 'zookeeper', 'zookeeper.nodes', [], "127.0.0.1:2181"))
