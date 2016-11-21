@@ -32,41 +32,41 @@ ZkNodesHealth = namedtuple('ZkNodesHealth', ['connect', 'error', \
   'num_ok', 'num_ko', 'list'])
 
 TestbotResult = namedtuple('TestbotResult',
-               [
-                   'sent',
-                   'received',
-                   'notvalid',
-                   'avg_ms'
-               ])
+                           [
+                               'sent',
+                               'received',
+                               'notvalid',
+                               'avg_ms'
+                           ])
 
 PartitionState = namedtuple('PartitionState',
-                [
-                    'broker',           # Broker host
-                    'port',             # Broker port
-                    'topic',            # Topic on broker
-                    'partId',           # Partition id
-                    'alive'             # broker alive
-                ])
+                            [
+                                'broker',           # Broker host
+                                'port',             # Broker port
+                                'topic',            # Topic on broker
+                                'partId',           # Partition id
+                                'alive'             # broker alive
+                            ])
 MonitorSummary = namedtuple('PartitionsSummary',
-                [
-                    'num_partitions',   # Number of partitions.
-                    'list_brokers',     # host:port list, comma separated
-                    'list_brokers_ko',  # host:port list, comma separated
-                    'num_brokers_ok',   # Number of Kafka Brokers alive
-                    'num_brokers_ko',   # Number of Kafka Brokers unreachable
-                    'num_zk_ok',        # Number of zk node alive
-                    'list_zk',          # host:port list, comma separated
-                    'list_zk_ko',       # host:port list, comma separated
-                    'num_zk_ko',        # Number of zk node unreachable
-                    'num_part_ok',      # Number of partition ok
-                    'num_part_ko',      # Number of partition HS
-                    'partitions'        # Tuple of PartitionStates
-                ])
+                            [
+                                'num_partitions',   # Number of partitions.
+                                'list_brokers',     # host:port list, comma separated
+                                'list_brokers_ko',  # host:port list, comma separated
+                                'num_brokers_ok',   # Number of Kafka Brokers alive
+                                'num_brokers_ko',   # Number of Kafka Brokers unreachable
+                                'num_zk_ok',        # Number of zk node alive
+                                'list_zk',          # host:port list, comma separated
+                                'list_zk_ko',       # host:port list, comma separated
+                                'num_zk_ko',        # Number of zk node unreachable
+                                'num_part_ok',      # Number of partition ok
+                                'num_part_ko',      # Number of partition HS
+                                'partitions'        # Tuple of PartitionStates
+                            ])
 
 ZkMonitorSummary = namedtuple('ZkSummary',
-                [
-                  'num_zk_ok',        # Number of zk node alive
-                  'list_zk',          # host:port list, comma separated
-                  'list_zk_ko',       # host:port list, comma separated
-                  'num_zk_ko'        # Number of zk node unreachable
-                ])
+                              [
+                                  'num_zk_ok',        # Number of zk node alive
+                                  'list_zk',          # host:port list, comma separated
+                                  'list_zk_ko',       # host:port list, comma separated
+                                  'num_zk_ko'        # Number of zk node unreachable
+                              ])

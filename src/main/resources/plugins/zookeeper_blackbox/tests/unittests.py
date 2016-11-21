@@ -17,7 +17,6 @@ Purpose:    Unit testing
 
 """
 
-import time
 import unittest
 
 from mock import patch
@@ -27,20 +26,19 @@ class TestKafkaBlackbox(unittest.TestCase):
 
     @patch('plugins.common.zkclient.ZkClient')
     def test_normal_use(self, zk_mock):
-        from plugins.zookeeper.TestbotPlugin import ZookeeperBot
+        from plugins.zookeeper_blackbox.TestbotPlugin import ZookeeperBot
         zk_mock.return_value.ping.return_value = True
         plugin = ZookeeperBot()
         values = plugin.runner(("--zconnect 127.0.0.1:2181"), True)
-
-        self.assertEqual(4, len(values))
+        self.assertEqual(5, len(values))
         i = 0
         test_ok = []
-        test_ok.append(Event(0,'zookeeper','zookeeper.nodes',[],"127.0.0.1:2181"))
-        test_ok.append(Event(0,'zookeeper','zookeeper.nodes.ok',[],1))
-        test_ok.append(Event(0,'zookeeper','zookeeper.nodes.ko',[],0))
+        test_ok.append(Event(0, 'zookeeper', 'zookeeper.nodes', [], "127.0.0.1:2181"))
+        test_ok.append(Event(0, 'zookeeper', 'zookeeper.nodes.ok', [], 1))
+        test_ok.append(Event(0, 'zookeeper', 'zookeeper.nodes.ko', [], 0))
         for data in test_ok:
             self.assertEqual(values[i].source, data.source)
-            self.assertEqual(values[i].metric, data.metric )
+            self.assertEqual(values[i].metric, data.metric)
             self.assertEqual(values[i].causes, data.causes)
             self.assertEqual(values[i].value, data.value)
             i = i + 1

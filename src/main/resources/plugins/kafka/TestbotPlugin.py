@@ -37,7 +37,7 @@ from pnda_plugin import Event
 
 sys.path.insert(0, '../..')
 
-TestbotPlugin = lambda: KafkaWhitebox()
+TestbotPlugin = lambda: KafkaWhitebox() # pylint: disable=invalid-name
 
 TIMESTAMP_MILLIS = lambda: int(time.time() * 1000)
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -68,11 +68,11 @@ class KafkaWhitebox(PndaPlugin):
             description='Show state of Zk-Kafka cluster',
             add_help=False)
         parser.add_argument('--brokerlist', default='localhost:9092',
-          help='comma separated host:port pairs, each corresponding to ' + \
+                            help='comma separated host:port pairs, each corresponding to ' + \
           'a kafka broker (default: localhost:9092)')
         parser.add_argument('--zkconnect', default='localhost:2181',
-          help='comma separated host:port pairs, each corresponding to a ' + \
-          'zk host (default: localhost:2181)')
+                            help='comma separated host:port pairs, each corresponding to a ' + \
+                            'zk host (default: localhost:2181)')
         return parser.parse_args(args)
 
     def get_brokertopicmetrics(self, host, topic, broker_id):
@@ -82,32 +82,32 @@ class KafkaWhitebox(PndaPlugin):
         for jmx_path_name in ["BytesInPerSec", "BytesOutPerSec", \
                               "MessagesInPerSec"]:
             for jmx_data in ["RateUnit", "OneMinuteRate", \
-                    "EventType", "Count", "FifteenMinuteRate",
-                    "FiveMinuteRate", "MeanRate"]:
+                             "EventType", "Count", "FifteenMinuteRate",
+                             "FiveMinuteRate", "MeanRate"]:
                 url_jmxproxy = ("http://127.0.0.1:8000/jmxproxy/%s/"
-                "kafka.server:type=BrokerTopicMetrics,"
-                "name=%s,topic=%s/%s") % (host, jmx_path_name, topic, jmx_data)
+                                "kafka.server:type=BrokerTopicMetrics,"
+                                "name=%s,topic=%s/%s") % (host, jmx_path_name, topic, jmx_data)
 
                 response = requests.get(url_jmxproxy)
                 if response.status_code == 200:
                     LOGGER.debug("Getting %s - %s", response.text, url_jmxproxy)
                     self.results.append(Event(TIMESTAMP_MILLIS(),
-                      'kafka',
-                      'kafka.brokers.%d.topics.%s.%s.%s' %
-                      (broker_id,
-                       topic,
-                       jmx_path_name,
-                       jmx_data), [], response.text)
-                     )
+                                              'kafka',
+                                              'kafka.brokers.%d.topics.%s.%s.%s' %
+                                              (broker_id,
+                                               topic,
+                                               jmx_path_name,
+                                               jmx_data), [], response.text)
+                                       )
                 elif response.status_code == 404:
                     self.results.append(Event(TIMESTAMP_MILLIS(),
-                      'kafka',
-                      'kafka.brokers.%d.topics.%s.%s.%s' %
-                      (broker_id,
-                       topic,
-                       jmx_path_name,
-                       jmx_data), [], '0')
-                     )
+                                              'kafka',
+                                              'kafka.brokers.%d.topics.%s.%s.%s' %
+                                              (broker_id,
+                                               topic,
+                                               jmx_path_name,
+                                               jmx_data), [], '0')
+                                       )
                 else:
                     LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
 
@@ -140,9 +140,9 @@ class KafkaWhitebox(PndaPlugin):
             if response.status_code == 200:
                 LOGGER.debug("Getting %s fo %s", response.text, url_jmxproxy)
                 self.results.append(Event(TIMESTAMP_MILLIS(),
-                  'kafka',
-                  'kafka.brokers.%d.system.%s' %
-                  (broker_id, jmx_data), [], response.text))
+                                          'kafka',
+                                          'kafka.brokers.%d.system.%s' %
+                                          (broker_id, jmx_data), [], response.text))
             else:
                 LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
 
@@ -160,9 +160,9 @@ class KafkaWhitebox(PndaPlugin):
         if response.status_code == 200:
             LOGGER.debug("Getting %s fo %s", response.text, url_jmxproxy)
             self.results.append(Event(TIMESTAMP_MILLIS(),
-              'kafka',
-              'kafka.brokers.%d.UnderReplicatedPartitions' %
-              broker_id, [], response.text))
+                                      'kafka',
+                                      'kafka.brokers.%d.UnderReplicatedPartitions' %
+                                      broker_id, [], response.text))
         else:
             LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
         # todo: impact health as this need to be 0
@@ -181,9 +181,9 @@ class KafkaWhitebox(PndaPlugin):
         if response.status_code == 200:
             LOGGER.debug("Getting %s fo %s", response.text, url_jmxproxy)
             self.results.append(Event(TIMESTAMP_MILLIS(),
-                'kafka',
-                'kafka.brokers.%d.ActiveControllerCount' %
-                broker_id, [], response.text))
+                                      'kafka',
+                                      'kafka.brokers.%d.ActiveControllerCount' %
+                                      broker_id, [], response.text))
         else:
             LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
         # todo: impact health as only one broker in the cluster should have 1
@@ -213,16 +213,16 @@ class KafkaWhitebox(PndaPlugin):
                          "999thPercentile",
                          "FifteenMinuteRate"]:
             url_jmxproxy = ("http://127.0.0.1:8000/jmxproxy/%s/"
-                "kafka.controller:type=ControllerStats,"
-                "name=LeaderElectionRateAndTimeMs/%s") % (host, jmx_data)
+                            "kafka.controller:type=ControllerStats,"
+                            "name=LeaderElectionRateAndTimeMs/%s") % (host, jmx_data)
 
             response = requests.get(url_jmxproxy)
             if response.status_code == 200:
                 LOGGER.debug("Getting %s fo %s", response.text, url_jmxproxy)
                 self.results.append(Event(TIMESTAMP_MILLIS(),
-                    'kafka',
-                    'kafka.brokers.%d.controllerstats.LeaderElection.%s' %
-                    (broker_id, jmx_data), [], response.text))
+                                          'kafka',
+                                          'kafka.brokers.%d.controllerstats.LeaderElection.%s' %
+                                          (broker_id, jmx_data), [], response.text))
             else:
                 LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
 
@@ -241,17 +241,17 @@ class KafkaWhitebox(PndaPlugin):
                          "FiveMinuteRate",
                          "MeanRate"]:
             url_jmxproxy = ("http://127.0.0.1:8000/jmxproxy/%s/"
-                  "kafka.controller:type=ControllerStats,"
-                  "name=UncleanLeaderElectionsPerSec/%s") % (host, jmx_data)
+                            "kafka.controller:type=ControllerStats,"
+                            "name=UncleanLeaderElectionsPerSec/%s") % (host, jmx_data)
 
             response = requests.get(url_jmxproxy)
             if response.status_code == 200:
                 LOGGER.debug("Getting %s fo %s", response.text, url_jmxproxy)
                 self.results.append(Event(TIMESTAMP_MILLIS(),
-                  'kafka',
-                  ('kafka.brokers.%d.'
-                   'controllerstats.UncleanLeaderElections.%s') %
-                  (broker_id, jmx_data), [], response.text))
+                                          'kafka',
+                                          ('kafka.brokers.%d.'
+                                           'controllerstats.UncleanLeaderElections.%s') %
+                                          (broker_id, jmx_data), [], response.text))
             else:
                 LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
 
@@ -262,7 +262,7 @@ class KafkaWhitebox(PndaPlugin):
         '''
         Process the brokers
         '''
-        # TODO see brokerID
+        # todo see brokerID
         for broker_index in xrange(1, len(self.broker_list) + 1):
             broker = self.broker_list[broker_index - 1]
             for topic in self.topic_list:

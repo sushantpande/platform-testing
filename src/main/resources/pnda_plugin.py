@@ -21,7 +21,7 @@ from collections import OrderedDict
 from collections import namedtuple
 from prettytable import PrettyTable
 
-MonitorStatus = OrderedDict([("green", "OK"), ("amber", "WARN"), ("red", "ERROR")])
+MonitorStatus = OrderedDict([("green", "OK"), ("amber", "WARN"), ("red", "ERROR")]) # pylint: disable=invalid-name
 
 Event = namedtuple('Event',
                    [
@@ -76,4 +76,3 @@ class PndaPlugin(object):
         args:       command line argument list to be passed to the plugin
         '''
         raise NotImplementedError()
-

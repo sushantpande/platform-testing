@@ -17,17 +17,17 @@ Purpose:      Blackbox test for the Deployment manager
 
 """
 
+import time
 import argparse
 import eventlet
 import requests
-import time
 
 from pnda_plugin import PndaPlugin
 from pnda_plugin import Event
 
 TIMESTAMP_MILLIS = lambda: int(round(time.time() * 1000))
 
-TestbotPlugin = lambda: DMBlackBox()
+TestbotPlugin = lambda: DMBlackBox() # pylint: disable=invalid-name
 
 
 class DMBlackBox(PndaPlugin):
@@ -53,7 +53,7 @@ class DMBlackBox(PndaPlugin):
         Main section.
         '''
         plugin_args = args.split() \
-        if args is not None and (0 < len(args.strip())) \
+        if args is not None and (len(args.strip()) > 0) \
         else ""
 
         options = self.read_args(plugin_args)
@@ -63,8 +63,7 @@ class DMBlackBox(PndaPlugin):
         try:
             start = TIMESTAMP_MILLIS()
             with eventlet.Timeout(100):
-                req = requests.get("%s/repository/packages"
-                    % (options.dmendpoint), timeout=20)
+                req = requests.get("%s/repository/packages" % (options.dmendpoint), timeout=20)
             end = TIMESTAMP_MILLIS()
             packages_available_ok = True
             packages_available_count = len(req.json())
@@ -107,7 +106,7 @@ class DMBlackBox(PndaPlugin):
             health = "ERROR"
             cause = "Deployment manager package APIs are not working"
         values.append(Event(TIMESTAMP_MILLIS(), 'deployment-manager',
-                            'deployment-manager.health',[cause], health))
+                            'deployment-manager.health', [cause], health))
         if display:
             self._do_display(values)
         return values
