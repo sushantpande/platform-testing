@@ -30,7 +30,7 @@ import logging
 
 import requests
 
-from plugins.common.zkclient import ZkClient
+from plugins.common.zkclient import ZkClient, ZkError
 from plugins.kafka.prod2cons import Prod2Cons
 from plugins.common.defcom import MonitorSummary, PartitionState, TestbotResult
 from plugins.common.defcom import ZkNodesHealth, ZkNode, KkBroker
