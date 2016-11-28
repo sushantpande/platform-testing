@@ -30,6 +30,8 @@ import logging
 
 import requests
 
+from prettytable import PrettyTable
+
 from plugins.common.zkclient import ZkClient, ZkError
 from plugins.kafka.prod2cons import Prod2Cons
 from plugins.common.defcom import MonitorSummary, PartitionState, TestbotResult
@@ -292,7 +294,7 @@ class KafkaWhitebox(PndaPlugin):
                 if jmx_data == "Count":
                     if response.text != "0":
                         self.whitebox_error_code = 104
-                elif jmx_data in ["FifteenMinuteRate","FiveMinuteRate","MeanRate","OneMinuteRate"]:
+                elif jmx_data in ["FifteenMinuteRate", "FiveMinuteRate", "MeanRate", "OneMinuteRate"]:
                     if response.text != "0.0":
                         self.whitebox_error_code = 104
 
@@ -481,25 +483,25 @@ class KafkaWhitebox(PndaPlugin):
         if self.whitebox_error_code != -1:
 
             if self.whitebox_error_code == 101:
-                LOGGER.error("analyse_results : UnderReplicatedPartitions should be 0")
+                LOGGER.warn("analyse_results : UnderReplicatedPartitions should be 0")
                 if analyse_status != MonitorStatus["red"]:
                     analyse_status = MonitorStatus["amber"]
                 analyse_causes.append(
                     "UnderReplicatedPartitions should be 0")
             elif self.whitebox_error_code == 102:
-                LOGGER.error("analyse_results : ActiveControllerCount only one broker in the cluster should have 1")
+                LOGGER.warn("analyse_results : ActiveControllerCount only one broker in the cluster should have 1")
                 if analyse_status != MonitorStatus["red"]:
                     analyse_status = MonitorStatus["amber"]
                 analyse_causes.append(
                     "ActiveControllerCount only one broker in the cluster should have 1")
             elif self.whitebox_error_code == 103:
-                LOGGER.error("analyse_results : Leader election rate, should be 0")
+                LOGGER.warn("analyse_results : Leader election rate, should be 0")
                 if analyse_status != MonitorStatus["red"]:
                     analyse_status = MonitorStatus["amber"]
                 analyse_causes.append(
                     "Unclean leader election rate, should be 0")
             elif self.whitebox_error_code == 104:
-                LOGGER.error("analyse_results : Unclean leader election rate, should be 0")
+                LOGGER.warn("analyse_results : Unclean leader election rate, should be 0")
                 if analyse_status != MonitorStatus["red"]:
                     analyse_status = MonitorStatus["amber"]
                 analyse_causes.append(
@@ -669,7 +671,7 @@ class KafkaWhitebox(PndaPlugin):
 
         results_summary = self.analyse_results(zk_data, test_result)
         self.results.append(results_summary)
-        
+
         LOGGER.debug("runner finished")
 
         if display:
