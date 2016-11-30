@@ -19,6 +19,7 @@ Purpose:    Unit testing
 import unittest
 
 from mock import patch
+from plugins.common.defcom import ZkPartitions
 
 class TestKafkaWhitebox(unittest.TestCase):
 
@@ -27,17 +28,17 @@ class TestKafkaWhitebox(unittest.TestCase):
     def test_normal_use(self, zk_mock, requests_mock):
         from plugins.kafka.TestbotPlugin import KafkaWhitebox
         zk_mock.return_value.ping.return_value = True
-        zk_mock.return_value.topics.return_value = [type('obj', (object,), {'id' : 'avro.internal.test'})]
+        zk_mock.return_value.topics.return_value = [ZkPartitions('avro.internal.test', {'valid': True, 'list': [{0: {'leader': 1, 'isr': [1]}}]})]
         #requests_mock.return_value = mocked_requests_get
-        requests_mock.return_value = type('obj', (object,), {'status_code' : 200, 'text': 103})
+        requests_mock.return_value = type('obj', (object,), {'status_code' : 200, 'text': 0.0})
         plugin = KafkaWhitebox()
         values = plugin.runner(("--brokerlist 127.0.0.1:9050 --zkconnect 127.0.0.1:2181"), True)
         self.assertEqual(plugin.topic_list, ['avro.internal.test'])
         self.assertEqual(plugin.broker_list, ['127.0.0.1:9050'])
         self.assertEqual(plugin.zk_list, ['127.0.0.1:2181'])
 
-        self.assertEqual(64, len(values))
-        i = 0
+        self.assertEqual(70, len(values))
+        i = 5
 
         for jmx_path_name in ["BytesInPerSec", "BytesOutPerSec",
                               "MessagesInPerSec"]:
@@ -48,7 +49,7 @@ class TestKafkaWhitebox(unittest.TestCase):
                 self.assertEqual(values[i].source, 'kafka')
                 self.assertEqual(values[i].metric, 'kafka.brokers.1.topics.avro.internal.test.%s.%s' % (jmx_path_name, jmx_data))
                 self.assertEqual(values[i].causes, [])
-                self.assertEqual(values[i].value, 103)
+                self.assertEqual(values[i].value, 0.0)
                 i = i + 1
 
         for jmx_data in ["OpenFileDescriptorCount",
@@ -70,7 +71,7 @@ class TestKafkaWhitebox(unittest.TestCase):
             self.assertEqual(values[i].source, 'kafka')
             self.assertEqual(values[i].metric, 'kafka.brokers.1.system.%s' % (jmx_data))
             self.assertEqual(values[i].causes, [])
-            self.assertEqual(values[i].value, 103)
+            self.assertEqual(values[i].value, 0.0)
             i = i + 1
 
 if __name__ == '__main__':

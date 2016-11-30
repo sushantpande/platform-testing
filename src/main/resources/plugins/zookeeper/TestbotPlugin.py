@@ -13,7 +13,7 @@ Unless required by applicable law or agreed to separately in writing, software d
 the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 either express or implied.
 
-Purpose:    Zookeeper blackbox tests
+Purpose:    Zookeeper tests
 
 """
 
@@ -177,7 +177,7 @@ class ZookeeperBot(PndaPlugin):
             add_help=False)
         parser.add_argument('--zconnect', default='localhost:2181', help= \
             'comma separated host:port pairs, \
-                each corresponding to a zk host (default: localhost:2181)')
+                            each corresponding to a zk host (default: localhost:2181)')
         return parser.parse_args(args)
 
     def process(self, zknodes):
