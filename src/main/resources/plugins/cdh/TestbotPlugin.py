@@ -25,7 +25,7 @@ from cm_api.api_client import ApiResource
 from pnda_plugin import PndaPlugin
 from pnda_plugin import Event
 
-TestbotPlugin = lambda: CDHPlugin()
+TestbotPlugin = lambda: CDHPlugin() # pylint: disable=invalid-name
 
 TIMESTAMP_MILLIS = lambda: int(time.time() * 1000)
 
@@ -114,5 +114,3 @@ class CDHPlugin(PndaPlugin):
             self._do_display(events)
 
         return events
-
-

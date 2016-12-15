@@ -32,14 +32,14 @@ from cm_api.api_client import ApiResource
 
 from pnda_plugin import PndaPlugin
 from pnda_plugin import Event
+from plugins.cdh_blackbox.cm_health import CDHData
 
 LOGGER = logging.getLogger("TestbotPlugin")
 
-from cm_health import CDHData
 
 TIMESTAMP_MILLIS = lambda: int(time.time() * 1000)
 
-TestbotPlugin = lambda: CDHBlackboxPlugin()
+TestbotPlugin = lambda: CDHBlackboxPlugin() # pylint: disable=invalid-name
 
 class CDHBlackboxPlugin(PndaPlugin):
     '''
@@ -84,6 +84,7 @@ class CDHBlackboxPlugin(PndaPlugin):
         cdh = CDHData(api, cluster)
 
         def run_test_sequence():
+            # pylint: disable=too-many-return-statements
             # This essentially sets some state and doesn't actually connnect to anything, so can't fail
             hbase = starbase.Connection(host=cdh.get_hbase_endpoint(), port=options.hbaseport)
             if abort_test_sequence is True:
@@ -154,11 +155,11 @@ class CDHBlackboxPlugin(PndaPlugin):
                                     read_hbase_ms))
             except:
                 LOGGER.error(traceback.format_exc())
-                hbase_fix_output = subprocess.check_output(['sudo','-u','hbase', 'hbase', 'hbck', '-repair', 'blackbox_test_table'])
+                hbase_fix_output = subprocess.check_output(['sudo', '-u', 'hbase', 'hbase', 'hbck', '-repair', 'blackbox_test_table'])
                 for line in hbase_fix_output.splitlines():
                     if 'Status:' in line or 'inconsistencies detected' in line:
                         LOGGER.debug(line)
-                hbase_fix_output = subprocess.check_output(['sudo', '-u', 'hbase', 'hbase', 'zkcli', 'rmr', '/hbase/table/blackbox_test_table'])                        
+                hbase_fix_output = subprocess.check_output(['sudo', '-u', 'hbase', 'hbase', 'zkcli', 'rmr', '/hbase/table/blackbox_test_table'])
                 read_hbase_ok = False
                 reason = ['Failed to fetch row by row key from HBase']
             health_values.append(Event(TIMESTAMP_MILLIS(),
@@ -379,7 +380,7 @@ class CDHBlackboxPlugin(PndaPlugin):
         if default_health_value("hadoop.IMPALA.read_succeeded", "IMPALA", "SELECT from Impala", failed_step) and failed_step is None:
             failed_step = "SELECT from Impala"
         if default_health_value("hadoop.HIVE.drop_table_succeeded", "HIVE", "DROP table in Hive Metastore", failed_step) and failed_step is None:
-            failed_step =  "DROP table in Hive Metastore"
+            failed_step = "DROP table in Hive Metastore"
         if default_health_value("hadoop.HBASE.drop_table_succeeded", "HBASE", "drop table in HBase", failed_step) and failed_step is None:
             failed_step = "drop table in HBase"
 

@@ -53,7 +53,7 @@ class TestCDHPlugin(unittest.TestCase):
         _items = [_item]
 
         then = time.time() * 1000
-
+        time.sleep(0.1)
         api_mock.return_value.query_timeseries.return_value = _items
 
         plugin = CDHPlugin()
@@ -89,4 +89,3 @@ class TestCDHPlugin(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

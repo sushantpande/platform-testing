@@ -1,8 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] 2016-12-12
+### Changed
+- Externalized build logic from Jenkins to shell script so it can be reused
+- Merge kafka blackbox and whitebox & rename zookeeper_blackbox to zookeeper
+
 ## [0.1.1] 2016-09-13
-### Changes
+### Changed
 - Enhanced CI support
 
 ## [0.1.0] 2016-07-01

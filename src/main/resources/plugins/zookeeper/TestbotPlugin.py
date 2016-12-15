@@ -13,7 +13,7 @@ Unless required by applicable law or agreed to separately in writing, software d
 the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 either express or implied.
 
-Purpose:    Zookeeper blackbox tests
+Purpose:    Zookeeper tests
 
 """
 
@@ -34,14 +34,13 @@ from plugins.common.defcom import ZkNodesHealth, ZkNode, ZkMonitorSummary
 
 sys.path.insert(0, '../..')
 
-TestbotPlugin = lambda: ZookeeperBot()
+TestbotPlugin = lambda: ZookeeperBot() # pylint: disable=invalid-name
 
 TIMESTAMP_MILLIS = lambda: int(time.time() * 1000)
 HERE = os.path.abspath(os.path.dirname(__file__))
 LOGGER = logging.getLogger("TestbotPlugin")
 
-def do_display(results_summary, zk_data,
-                   zknodes=ZkNodesHealth(-1, -1, -1, -1, -1)):
+def do_display(results_summary, zk_data, zknodes=ZkNodesHealth(-1, -1, -1, -1, -1)):
     '''
         Receive a summary tuples, and then build a display
         on the standard output as a result of the monitoring running.
@@ -88,17 +87,14 @@ def analyse_results(zk_data, zk_election):
     analyse_metric = 'zookeeper.health'
 
     if zk_data and len(zk_data.list_zk_ko) > 0:
-        LOGGER.error(
-            "analyse_results : at least one zookeeper node failed")
+        LOGGER.error("analyse_results : at least one zookeeper node failed")
         analyse_status = MonitorStatus["red"]
         analyse_causes.append(
             "zookeeper node(s) unreachable (%s)" % zk_data.list_zk_ko)
-    elif zk_election == False:
-        LOGGER.error(
-            "analyse_results : zookeeper election not done, check nodes mode")
+    elif zk_election is False:
+        LOGGER.error("analyse_results : zookeeper election not done, check nodes mode")
         analyse_status = MonitorStatus["red"]
-        analyse_causes.append(
-            "zookeeper election not done, check nodes mode")
+        analyse_causes.append("zookeeper election not done, check nodes mode")
     return Event(TIMESTAMP_MILLIS(),
                  'zookeeper',
                  analyse_metric,
@@ -181,7 +177,7 @@ class ZookeeperBot(PndaPlugin):
             add_help=False)
         parser.add_argument('--zconnect', default='localhost:2181', help= \
             'comma separated host:port pairs, \
-                each corresponding to a zk host (default: localhost:2181)')
+                            each corresponding to a zk host (default: localhost:2181)')
         return parser.parse_args(args)
 
     def process(self, zknodes):
@@ -226,14 +222,13 @@ class ZookeeperBot(PndaPlugin):
             if zkn.alive is True:
                 try:
                     zk_data = self.process(zknodes)
-                    zkelect= os.popen("echo stat | nc %s %s | grep Mode" % (zkn.host, zkn.port)).read().replace("Mode: ","").rstrip('\r\n')
+                    zkelect = os.popen("echo stat | nc %s %s | grep Mode" % (zkn.host, zkn.port)).read().replace("Mode: ", "").rstrip('\r\n')
                     if zkelect == "leader" or zkelect == "standalone":
                         zk_election = True
                     self.results.append(Event(TIMESTAMP_MILLIS(),
-                      'zookeeper',
-                      'zookeeper.%d.mode' %
-                      (zid), [], zkelect)
-                     )
+                                              'zookeeper',
+                                              'zookeeper.%d.mode' % (zid), [], zkelect)
+                                       )
                 except ZkError, ex:
                     LOGGER.error('Failed to access Zookeeper: %s', str(ex))
                     break
@@ -252,7 +247,7 @@ class ZookeeperBot(PndaPlugin):
         # ----------------------------------------
         # Lets'build the global result structure
         # ----------------------------------------
-        results_summary = analyse_results(zk_data,zk_election)
+        results_summary = analyse_results(zk_data, zk_election)
         # ----------------------------------------
         # if output display is required
         # ----------------------------------------
