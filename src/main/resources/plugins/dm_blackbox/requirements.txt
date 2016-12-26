@@ -1,5 +1,4 @@
-cm-api==8.0.0
-eventlet==0.18.4
-impyla==0.13.1
-pyhs2==0.6.0
-starbase==0.3.3
+enum-compat==0.0.2
+enum34==1.1.6
+eventlet==0.20.0
+greenlet==0.4.11
