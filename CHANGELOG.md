@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## Changed
 - PNDA-2672: Explicitly specify usage of CM API version 11
 
+## Fixed
+- PNDA-2597: Delete HBase folder from HDFS when blackbox test fails as part of cleanup to cope with HBase errors.
+
 ## [0.3.0] 2017-01-20
 ### Changed
 - PNDA-2485: Pinned all python libraries to strict version numbers

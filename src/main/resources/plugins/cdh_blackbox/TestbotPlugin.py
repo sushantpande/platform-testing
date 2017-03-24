@@ -160,7 +160,8 @@ class CDHBlackboxPlugin(PndaPlugin):
                 for line in hbase_fix_output.splitlines():
                     if 'Status:' in line or 'inconsistencies detected' in line:
                         LOGGER.debug(line)
-                hbase_fix_output = subprocess.check_output(['sudo', '-u', 'hbase', 'hbase', 'zkcli', 'rmr', '/hbase/table/blackbox_test_table'])
+                subprocess.check_output(['sudo', '-u', 'hbase', 'hbase', 'zkcli', 'rmr', '/hbase/table/blackbox_test_table'])
+                subprocess.check_output(['sudo', '-u', 'hdfs', 'hadoop', 'fs', '-rm', '-r', '-f', '-skipTrash', '/hbase/data/default/blackbox_test_table'])
                 read_hbase_ok = False
                 reason = ['Failed to fetch row by row key from HBase']
             health_values.append(Event(TIMESTAMP_MILLIS(),
