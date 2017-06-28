@@ -40,6 +40,7 @@ from plugins.common.defcom import ZkNodesHealth, ZkNode, KkBroker
 from pnda_plugin import PndaPlugin
 from pnda_plugin import Event
 from pnda_plugin import MonitorStatus
+from decimal import Decimal
 
 sys.path.insert(0, '../..')
 
@@ -79,6 +80,7 @@ class KafkaWhitebox(PndaPlugin):
         self.consumer_timeout = 1  # max number of second to wait for
         self.whitebox_error_code = -1
         self.activecontrollercount = -1
+        self.unclean_threshold = 0.0002
 
     def read_args(self, args):
         '''
@@ -264,6 +266,8 @@ class KafkaWhitebox(PndaPlugin):
         '''
         Get UncleanLeaderElectionsPerSec
         '''
+        unclean_count = None
+        unclean_rate = None
         for jmx_data in ["RateUnit",
                          "OneMinuteRate",
                          "EventType",
@@ -285,14 +289,16 @@ class KafkaWhitebox(PndaPlugin):
                                           (broker_id, jmx_data), [], response.text))
 
                 if jmx_data == "Count":
-                    if response.text != "0":
-                        self.whitebox_error_code = 104
-                elif jmx_data in ["FifteenMinuteRate", "FiveMinuteRate", "MeanRate", "OneMinuteRate"]:
-                    if response.text != "0.0":
-                        self.whitebox_error_code = 104
+                  unclean_count = int(response.text)
+                elif jmx_data == "FifteenMinuteRate":
+                  unclean_rate = Decimal(response.text)
 
             else:
                 LOGGER.error("ERROR for url_jmxproxy: %s", url_jmxproxy)
+        if unclean_count is not None and unclean_rate is not None:
+          if unclean_rate > self.unclean_threshold:
+            LOGGER.debug("broker %d threshold is %f and current rate is %f" % (broker_id,self.unclean_threshold, unclean_rate))
+            self.whitebox_error_code = 104
 
         return None
 
