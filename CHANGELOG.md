@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ## Changed
 - PNDA-2672: Explicitly specify usage of CM API version 11
+- PNDA-3088: manage unclean leader election by adding a threshold
 
 ## Fixed
 - PNDA-2597: Delete HBase folder from HDFS when blackbox test fails as part of cleanup to cope with HBase errors.
