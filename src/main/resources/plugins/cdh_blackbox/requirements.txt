@@ -5,5 +5,5 @@ ordereddict==1.1
 pyhs2==0.6.0
 sasl==0.2.1
 six==1.10.0
-starbase==0.3.3
+happybase==1.0.0
 thrift==0.9.3
