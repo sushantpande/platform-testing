@@ -119,7 +119,7 @@ class CDHData(object):
 
             for role in service.get_all_roles():
 
-                if role.type == "HBASERESTSERVER":
+                if role.type == "HBASETHRIFTSERVER":
                     self._metadata['hbase_endpoint'] = \
                         self._api.get_host(role.hostRef.hostId).hostname
                 if role.type == "HIVESERVER2":

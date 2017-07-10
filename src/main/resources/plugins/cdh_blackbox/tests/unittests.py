@@ -32,7 +32,7 @@ class TestCDHBlackboxPlugin(unittest.TestCase):
     Set of unit tests designed to validate cdh-blackbox Plugin
     '''
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.ApiResource')
-    @mock.patch('plugins.cdh_blackbox.TestbotPlugin.starbase.Connection')
+    @mock.patch('plugins.cdh_blackbox.TestbotPlugin.happybase.Connection')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.pyhs2')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.connect')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.CDHData.get_name',
@@ -47,18 +47,18 @@ class TestCDHBlackboxPlugin(unittest.TestCase):
                 lambda s: '0.0.0.0')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.CDHData.get_status_indicators',
                 lambda s: [])
-    def test_pass_simple(self, impala_connect_mock, p2_mock, starbase_connection_mock, api_mock):
+    def test_pass_simple(self, impala_connect_mock, p2_mock, happybase_connection_mock, api_mock):
         '''
         Test that if all tests pass we get the expected output - no merging of indicators
         '''
         self.assertTrue(p2_mock is not None)
 
-        # mock HBase connection.table.fetch
+        # mock HBase connection.table.row
         _table = mock.MagicMock()
-        _table.fetch.return_value = {'cf': {'column': 'value'}}
+        _table.row.return_value = {'cf:column': 'value'}
         _hbase_conn = mock.MagicMock()
         _hbase_conn.table.return_value = _table
-        starbase_connection_mock.return_value = _hbase_conn
+        happybase_connection_mock.return_value = _hbase_conn
 
         # mock Impala connection.cursor.fetchall
         _cursor = mock.MagicMock()
@@ -116,7 +116,7 @@ class TestCDHBlackboxPlugin(unittest.TestCase):
             index += 1
 
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.ApiResource')
-    @mock.patch('plugins.cdh_blackbox.TestbotPlugin.starbase.Connection')
+    @mock.patch('plugins.cdh_blackbox.TestbotPlugin.happybase.Connection')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.pyhs2')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.connect')
     @mock.patch('plugins.cdh_blackbox.TestbotPlugin.CDHData.get_name',
@@ -138,19 +138,19 @@ class TestCDHBlackboxPlugin(unittest.TestCase):
                            Event(0, 'impala01', 'hadoop.IMPALA.cm_indicator',
                                  ['Cause C', 'Cause D'], 'WARN'),
                           ])
-    def test_merge_simple(self, impala_connect_mock, p2_mock, starbase_connection_mock, api_mock):
+    def test_merge_simple(self, impala_connect_mock, p2_mock, happybase_connection_mock, api_mock):
         '''
         Test that merging of indicators with CM is working as expected, with simulated failures
         in both PNDA tests and CM indicators
         '''
         self.assertTrue(p2_mock is not None)
 
-        # mock HBase connection.table.fetch with success
+        # mock HBase connection.table.row with success
         _table = mock.MagicMock()
-        _table.fetch.return_value = {'cf': {'column': 'value'}}
+        _table.row.return_value = {'cf:column': 'value'}
         _hbase_conn = mock.MagicMock()
         _hbase_conn.table.return_value = _table
-        starbase_connection_mock.return_value = _hbase_conn
+        happybase_connection_mock.return_value = _hbase_conn
 
         # mock Impala connection.cursor.fetchall with failure
         _cursor = mock.MagicMock()
@@ -193,7 +193,7 @@ class TestCDHBlackboxPlugin(unittest.TestCase):
         hcheck = {'name': 'host check',
                   'explanation': 'host broken', 'summary': 'BAD'}
 
-        role1 = mock.MagicMock(type='HBASERESTSERVER', healthChecks=[rcheck],
+        role1 = mock.MagicMock(type='HBASETHRIFTSERVER', healthChecks=[rcheck],
                                hostRef=mock.MagicMock(hostId=42))
         role2 = mock.MagicMock(type='HIVESERVER2', healthChecks=[rcheck],
                                hostRef=mock.MagicMock(hostId=42))
