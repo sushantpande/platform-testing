@@ -24,7 +24,9 @@ import logging
 import traceback
 import subprocess
 
-import starbase
+import happybase
+from Hbase_thrift import AlreadyExists
+
 import pyhs2
 
 from impala.dbapi import connect
@@ -83,19 +85,24 @@ class CDHBlackboxPlugin(PndaPlugin):
 
         cluster = api.get_cluster(api.get_all_clusters()[0].name)
         cdh = CDHData(api, cluster)
+        hbase = None
 
         def run_test_sequence():
             # pylint: disable=too-many-return-statements
-            # This essentially sets some state and doesn't actually connnect to anything, so can't fail
-            hbase = starbase.Connection(host=cdh.get_hbase_endpoint(), port=options.hbaseport)
+            hbase = happybase.Connection(host=cdh.get_hbase_endpoint())
             if abort_test_sequence is True:
                 return
             reason = []
             try:
                 start = TIMESTAMP_MILLIS()
+
+                try:
+                    hbase.create_table('blackbox_test_table', {'cf': dict()})
+                    logging.debug("test table created")
+                except AlreadyExists:
+                    logging.debug("test table exists")
+
                 table = hbase.table('blackbox_test_table')
-                table.drop()
-                table.create('cf')
                 end = TIMESTAMP_MILLIS()
                 create_table_ok = True
                 create_table_ms = end-start
@@ -120,7 +127,7 @@ class CDHBlackboxPlugin(PndaPlugin):
             reason = []
             try:
                 start = TIMESTAMP_MILLIS()
-                table.insert('row_key', {'cf': {'column': 'value'}})
+                table.put('row_key', {'cf:column': 'value'})
                 end = TIMESTAMP_MILLIS()
                 write_hbase_ok = True
                 write_hbase_ms = end-start
@@ -145,10 +152,10 @@ class CDHBlackboxPlugin(PndaPlugin):
             reason = []
             try:
                 start = TIMESTAMP_MILLIS()
-                row = table.fetch('row_key')
+                row = table.row('row_key', columns=['cf:column'])
                 end = TIMESTAMP_MILLIS()
                 read_hbase_ms = end-start
-                read_hbase_ok = row['cf']['column'] == 'value'
+                read_hbase_ok = row['cf:column'] == 'value'
                 values.append(Event(TIMESTAMP_MILLIS(),
                                     cdh.get_name('HBASE'),
                                     "hadoop.HBASE.read_time_ms",
@@ -313,7 +320,10 @@ class CDHBlackboxPlugin(PndaPlugin):
             reason = []
             try:
                 start = TIMESTAMP_MILLIS()
-                table.drop()
+                # Disabled deleting table to work around apparent hbase bug (see VPP-17) but leaving
+                # test step in so it can be easily re-enabled for testing.
+                #hbase.disable_table('blackbox_test_table')
+                #hbase.delete_table('blackbox_test_table')
                 end = TIMESTAMP_MILLIS()
                 drop_table_ms = end-start
                 drop_table_ok = True
@@ -365,6 +375,8 @@ class CDHBlackboxPlugin(PndaPlugin):
         test_thread.start()
         test_thread.join(60.0)
         abort_test_sequence = True
+        if hbase is not None:
+            hbase.close()
 
         failed_step = None
         if default_health_value("hadoop.HBASE.create_table_succeeded", "HBASE", "create HBase table", failed_step) and failed_step is None:

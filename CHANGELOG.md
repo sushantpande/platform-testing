@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+### Changed
+- VPP-17: Change platform-tests from starbase to happybase which is more performant. Also don't create and delete a table as part of the hbase test as this causes the regionserver to leak java heap space.
+
 ## [0.3.1] 2017-06-28
 ### Changed
 - PNDA-2672: Explicitly specify usage of CM API version 11
