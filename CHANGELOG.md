@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.3.2] 2017-07-10
 ### Changed
 - VPP-17: Change platform-tests from starbase to happybase which is more performant. Also don't create and delete a table as part of the hbase test as this causes the regionserver to leak java heap space.
 
