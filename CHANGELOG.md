@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
 - PNDA-2445: Support for Hortonworks HDP hadoop distro
+- PNDA-2163: Support for OpenTSDB Platform testing
 
 ## [0.3.3] 2017-08-01
 ### Changed
