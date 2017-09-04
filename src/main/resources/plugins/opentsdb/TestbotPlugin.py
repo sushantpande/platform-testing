@@ -289,7 +289,7 @@ class OpenTSDBWhiteBox(PndaPlugin):
             else:
                 overall_status = MonitorStatus["amber"]
         self.results.append(Event(self.test_start_timestamp, "opentsdb", "%s.%s" % \
-        (METRIC_NAME, "health"), cause, overall_status))
+        ("opentsdb", "health"), cause, overall_status))
         LOGGER.debug("Overall test on all host finished")
         return self.results
 
